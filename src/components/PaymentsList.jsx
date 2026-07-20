@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, Plus, ChevronDown, Check } from 'lucide-react';
-import StatusBadge from '../ui/StatusBadge';
-import { formatCurrency } from '../../data/accounts';
+import StatusBadge from './ui/StatusBadge';
+import { formatCurrency } from '../data/accounts';
 
 const CATEGORIES = [
   'All',
@@ -52,9 +52,8 @@ function FilterSelect({ label, value, options, onChange }) {
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition cursor-pointer ${
-                    selected ? 'text-indigo-400 bg-zinc-800/40' : 'text-zinc-300 hover:bg-zinc-800/70'
-                  }`}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition cursor-pointer ${selected ? 'text-indigo-400 bg-zinc-800/40' : 'text-zinc-300 hover:bg-zinc-800/70'
+                    }`}
                 >
                   <span className="truncate">{opt.label}</span>
                   {selected && <Check size={13} className="text-indigo-400 shrink-0" />}
@@ -78,13 +77,13 @@ export default function PaymentsList({ account, onNewTransaction, searchQuery, o
 
   const filtered = useMemo(() => {
     return account.transactions.filter((t) => {
-      const matchesQuery = t.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           t.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesType = typeFilter === 'All' || 
-                          (typeFilter === 'Income' && t.amount > 0) || 
-                          (typeFilter === 'Expense' && t.amount < 0);
-                          
+      const matchesQuery = t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesType = typeFilter === 'All' ||
+        (typeFilter === 'Income' && t.amount > 0) ||
+        (typeFilter === 'Expense' && t.amount < 0);
+
       const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
 
       const matchesStatus = status === 'All' || t.status === status;
@@ -215,9 +214,8 @@ export default function PaymentsList({ account, onNewTransaction, searchQuery, o
                       </span>
                     </td>
                     <td
-                      className={`whitespace-nowrap px-5 py-3.5 text-right font-semibold tabular-nums ${
-                        positive ? 'text-emerald-400' : 'text-zinc-200'
-                      }`}
+                      className={`whitespace-nowrap px-5 py-3.5 text-right font-semibold tabular-nums ${positive ? 'text-emerald-400' : 'text-zinc-200'
+                        }`}
                     >
                       {formatCurrency(t.amount, { signed: true })}
                     </td>

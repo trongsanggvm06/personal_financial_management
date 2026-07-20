@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Sparkles, Menu, X, ChevronDown, Check, Search, LayoutDashboard, CreditCard } from 'lucide-react';
+import { Menu, X, ChevronDown, Check, Search, LayoutDashboard, CreditCard } from 'lucide-react';
+import viteLogo from '../../assets/vite.svg';
 import Sidebar from './Sidebar';
-import DashboardHome from '../pages/DashboardHome';
-import PaymentsList from '../pages/PaymentsList';
+import DashboardHome from '../DashboardHome';
+import PaymentsList from '../PaymentsList';
 import NewTransactionModal from '../ui/NewTransactionModal';
 import { accounts as initialAccounts } from '../../data/accounts';
 
@@ -66,9 +67,7 @@ export default function DashboardLayout() {
         {/* Mobile Top Bar */}
         <header className="relative z-30 flex h-16 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-950/80 px-4 backdrop-blur lg:hidden">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500 shadow-lg shadow-indigo-500/30">
-              <Sparkles size={16} className="text-white" />
-            </div>
+            <img src={viteLogo} alt="Lumen" className="h-8 w-8 shrink-0" />
             <span className="text-sm font-bold tracking-tight text-zinc-50">Lumen</span>
           </div>
 
@@ -171,16 +170,14 @@ export default function DashboardLayout() {
                       setActivePage('home');
                       setDrawerOpen(false);
                     }}
-                    className={`group/nav relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                      activePage === 'home'
-                        ? 'bg-zinc-800/80 text-zinc-50 border border-zinc-700/30'
-                        : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
-                    }`}
+                    className={`group/nav relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${activePage === 'home'
+                      ? 'bg-zinc-800/80 text-zinc-50 border border-zinc-700/30'
+                      : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
+                      }`}
                   >
                     <span
-                      className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${
-                        activePage === 'home' ? 'opacity-100' : 'opacity-0'
-                      }`}
+                      className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${activePage === 'home' ? 'opacity-100' : 'opacity-0'
+                        }`}
                     />
                     <LayoutDashboard
                       size={19}
@@ -193,16 +190,14 @@ export default function DashboardLayout() {
                       setActivePage('payments');
                       setDrawerOpen(false);
                     }}
-                    className={`group/nav relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                      activePage === 'payments'
-                        ? 'bg-zinc-800/80 text-zinc-50 border border-zinc-700/30'
-                        : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
-                    }`}
+                    className={`group/nav relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${activePage === 'payments'
+                      ? 'bg-zinc-800/80 text-zinc-50 border border-zinc-700/30'
+                      : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
+                      }`}
                   >
                     <span
-                      className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${
-                        activePage === 'payments' ? 'opacity-100' : 'opacity-0'
-                      }`}
+                      className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${activePage === 'payments' ? 'opacity-100' : 'opacity-0'
+                        }`}
                     />
                     <CreditCard
                       size={19}

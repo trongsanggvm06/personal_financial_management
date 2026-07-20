@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Wallet, TrendingDown, ArrowRight, BarChart3, Plus } from 'lucide-react';
-import StatCard from '../ui/StatCard';
-import SpendingChart from '../charts/SpendingChart';
-import CategoryBreakdown from '../charts/CategoryBreakdown';
-import RecentActivity from '../ui/RecentActivity';
-import { formatCurrency } from '../../data/accounts';
+import StatCard from './ui/StatCard';
+import SpendingChart from './charts/SpendingChart';
+import CategoryBreakdown from './charts/CategoryBreakdown';
+import RecentActivity from './ui/RecentActivity';
+import { formatCurrency } from '../data/accounts';
 
 /**
  * DashboardHome — the "Home" view: stat cards, quick actions, charts, activity.
@@ -12,9 +12,11 @@ import { formatCurrency } from '../../data/accounts';
 export default function DashboardHome({ account, accounts, onNavigate, onNewTransaction, searchQuery }) {
   const actions = [
     { label: 'Go to Payments', icon: ArrowRight, primary: true, onClick: () => onNavigate('payments') },
-    { label: 'Quick Analytics', icon: BarChart3, primary: false, onClick: () => {
-      document.getElementById('category-breakdown')?.scrollIntoView({ behavior: 'smooth' });
-    }},
+    {
+      label: 'Quick Analytics', icon: BarChart3, primary: false, onClick: () => {
+        document.getElementById('category-breakdown')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
     { label: 'New Transaction', icon: Plus, primary: false, onClick: onNewTransaction },
   ];
 
@@ -67,11 +69,10 @@ export default function DashboardHome({ account, accounts, onNavigate, onNewTran
           <button
             key={a.label}
             onClick={a.onClick}
-            className={`group inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${
-              a.primary
+            className={`group inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${a.primary
                 ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-600 hover:shadow-indigo-500/40'
                 : 'border border-zinc-800 bg-zinc-900 text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800'
-            }`}
+              }`}
           >
             <a.icon size={16} />
             {a.label}

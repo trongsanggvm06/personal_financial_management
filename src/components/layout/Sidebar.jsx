@@ -6,9 +6,9 @@ import {
   CreditCard,
   Check,
   ChevronsUpDown,
-  Sparkles,
   Search,
 } from 'lucide-react';
+import viteLogo from '../../assets/vite.svg';
 
 const NAV = [
   { id: 'home', label: 'Home', icon: Home },
@@ -53,12 +53,11 @@ export default function Sidebar({
       <div className="group/logo relative flex h-[68px] items-center px-4">
         {/* Logo wrapper */}
         <div className="flex flex-1 items-center gap-3 py-2 cursor-pointer">
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500 shadow-lg shadow-indigo-500/30 ${collapsed ? 'mx-auto' : ''
-              }`}
-          >
-            <Sparkles size={18} className="text-white" />
-          </div>
+          <img
+            src={viteLogo}
+            alt="Lumen"
+            className={`h-9 w-9 shrink-0 ${collapsed ? 'mx-auto' : ''}`}
+          />
 
           {!collapsed && (
             <div className="flex flex-col overflow-hidden animate-fade-in">
