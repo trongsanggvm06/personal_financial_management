@@ -7,6 +7,7 @@ import {
   Check,
   ChevronsUpDown,
   Sparkles,
+  Search,
 } from 'lucide-react';
 
 const NAV = [
@@ -26,6 +27,8 @@ export default function Sidebar({
   accounts,
   activeAccount,
   onSelectAccount,
+  searchQuery,
+  onSearchChange,
 }) {
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const switcherRef = useRef(null);
@@ -43,39 +46,69 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`relative flex h-screen shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur transition-all duration-300 ${
-        collapsed ? 'w-[76px]' : 'w-64'
-      }`}
+      className={`relative hidden lg:flex h-screen shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur transition-all duration-300 ${collapsed ? 'w-[76px]' : 'w-64'
+        }`}
     >
       {/* Logo / toggle area */}
-      <div className="group relative flex h-[68px] items-center gap-3 px-4">
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500 shadow-lg shadow-indigo-500/30 ${
-            collapsed ? 'mx-auto' : ''
-          }`}
-        >
-          <Sparkles size={18} className="text-white" />
+      <div className="group/logo relative flex h-[68px] items-center px-4">
+        {/* Logo wrapper */}
+        <div className="flex flex-1 items-center gap-3 py-2 cursor-pointer">
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500 shadow-lg shadow-indigo-500/30 ${collapsed ? 'mx-auto' : ''
+              }`}
+          >
+            <Sparkles size={18} className="text-white" />
+          </div>
+
+          {!collapsed && (
+            <div className="flex flex-col overflow-hidden animate-fade-in">
+              <span className="truncate text-sm font-bold tracking-tight text-zinc-50">Lumen</span>
+            </div>
+          )}
         </div>
 
-        {!collapsed && (
-          <div className="flex flex-col overflow-hidden">
-            <span className="truncate text-sm font-bold tracking-tight text-zinc-50">Lumen</span>
-            <span className="truncate text-[11px] font-medium text-zinc-500">Finance Suite</span>
-          </div>
-        )}
-
-        {/* Hover-revealed toggle button — anchored to the right edge of the sidebar */}
+        {/* Hover-revealed toggle button — anchored to the right border of the sidebar in both states */}
         <button
-          onClick={onToggle}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="absolute right-2 top-1/2 z-20 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-300 opacity-0 shadow-lg transition-all duration-300 hover:border-indigo-500 hover:text-indigo-400 group-hover:opacity-100"
+          className="absolute right-[-14px] top-1/2 z-20 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-300 opacity-0 shadow-lg transition-all duration-300 hover:border-indigo-500 hover:text-indigo-400 group-hover/logo:opacity-100 cursor-pointer"
         >
-          {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+          {collapsed ? (
+            <ChevronRight size={14} className="translate-x-[0.5px]" />
+          ) : (
+            <ChevronLeft size={14} className="-translate-x-[0.5px]" />
+          )}
         </button>
       </div>
 
+      {/* Integrated Search Bar */}
+      <div className="px-3 my-2">
+        {collapsed ? (
+          <button
+            onClick={onToggle}
+            title="Search transactions..."
+            className="flex h-10 w-full items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/60 text-zinc-500 transition hover:border-zinc-700 hover:text-zinc-200"
+          >
+            <Search size={16} />
+          </button>
+        ) : (
+          <div className="relative">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search transactions..."
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 py-2 pl-9 pr-3 text-xs font-semibold text-zinc-200 placeholder:text-zinc-600 outline-none transition focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Nav */}
-      <nav className="mt-4 flex flex-1 flex-col gap-1.5 px-3">
+      <nav className="mt-2 flex flex-1 flex-col gap-1.5 px-3">
         {NAV.map((item) => {
           const active = activePage === item.id;
           return (
@@ -83,19 +116,16 @@ export default function Sidebar({
               key={item.id}
               onClick={() => onNavigate(item.id)}
               title={collapsed ? item.label : undefined}
-              className={`group/nav relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
-                collapsed ? 'justify-center' : ''
-              } ${
-                active
-                  ? 'bg-zinc-800/80 text-zinc-50'
+              className={`group/nav relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${collapsed ? 'justify-center' : ''
+                } ${active
+                  ? 'bg-zinc-800/80 text-zinc-50 border border-zinc-700/30'
                   : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
-              }`}
+                }`}
             >
               {/* Active left-border indicator */}
               <span
-                className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${
-                  active ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400 transition-all duration-300 ${active ? 'opacity-100' : 'opacity-0'
+                  }`}
               />
               <item.icon
                 size={19}
@@ -112,9 +142,8 @@ export default function Sidebar({
         <button
           onClick={() => setSwitcherOpen((v) => !v)}
           title={collapsed ? activeAccount.name : undefined}
-          className={`flex w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-2.5 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-800/60 active:scale-[0.98] ${
-            collapsed ? 'justify-center' : ''
-          }`}
+          className={`flex w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-2.5 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-800/60 active:scale-[0.98] ${collapsed ? 'justify-center' : ''
+            }`}
         >
           <span
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${activeAccount.accent} text-xs font-bold text-white shadow-md`}
@@ -139,8 +168,8 @@ export default function Sidebar({
         {/* Dropdown — when collapsed, anchor to the right of the sidebar */}
         {switcherOpen && (
           <div
-            className={`absolute bottom-3 z-30 w-56 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50 ${
-              collapsed ? 'left-[68px]' : 'left-3 right-3'
+            className={`absolute bottom-3 z-30 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50 ${
+              collapsed ? 'w-56 left-[68px]' : 'left-3 right-3'
             }`}
           >
             <p className="border-b border-zinc-800 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">

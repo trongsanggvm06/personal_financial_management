@@ -10,7 +10,7 @@ import {
 import { formatCurrency } from '../data/mockData';
 
 /**
- * MoneyUsageChart — indigo spend line (with neon glow) vs. emerald income area.
+ * MoneyUsageChart — emerald income area vs. rose spend line (with neon glow).
  */
 export default function MoneyUsageChart({ data }) {
   return (
@@ -22,7 +22,7 @@ export default function MoneyUsageChart({ data }) {
         </div>
         <div className="flex items-center gap-4 text-xs font-medium">
           <span className="flex items-center gap-1.5 text-zinc-400">
-            <span className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px] shadow-indigo-500" />
+            <span className="h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px] shadow-rose-500" />
             Spending
           </span>
           <span className="flex items-center gap-1.5 text-zinc-400">
@@ -36,7 +36,14 @@ export default function MoneyUsageChart({ data }) {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 8, left: -16, bottom: 0 }}>
             <defs>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <filter id="glow-rose" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="glow-emerald" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="3" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
@@ -72,18 +79,17 @@ export default function MoneyUsageChart({ data }) {
               dataKey="income"
               stroke="#10b981"
               strokeWidth={2}
-              fill="#10b981"
-              fillOpacity={0.18}
+              fill="none"
+              filter="url(#glow-emerald)"
             />
             <Area
               type="monotone"
               dataKey="spending"
-              stroke="#6366f1"
+              stroke="#f43f5e"
               strokeWidth={2.5}
-              fill="#6366f1"
-              fillOpacity={0.28}
-              filter="url(#glow)"
-              activeDot={{ r: 5, fill: '#6366f1', stroke: '#09090b', strokeWidth: 2 }}
+              fill="none"
+              filter="url(#glow-rose)"
+              activeDot={{ r: 5, fill: '#f43f5e', stroke: '#09090b', strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -1,32 +1,119 @@
 import { useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, Plus } from 'lucide-react';
+import { Search, Plus, ChevronDown, Check } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '../data/mockData';
 
-const CATEGORIES = ['All', 'Income', 'Groceries', 'Transport', 'Housing', 'Entertainment', 'Utilities', 'Transfer', 'Investment', 'Travel', 'Fees'];
+const CATEGORIES = [
+  'All',
+  'Income',
+  'Groceries',
+  'Transport',
+  'Housing',
+  'Entertainment',
+  'Utilities',
+  'Transfer',
+  'Investment',
+  'Travel',
+  'Fees',
+];
+
+function FilterSelect({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+
+  const activeLabel = useMemo(() => {
+    return options.find((o) => o.value === value)?.label || value;
+  }, [value, options]);
+
+  return (
+    <div className="relative w-full">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5 block">
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-800 bg-zinc-950/60 px-3.5 py-2.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-900 transition active:scale-[0.98] cursor-pointer"
+      >
+        <span className="truncate">{activeLabel}</span>
+        <ChevronDown size={14} className={`text-zinc-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 right-0 mt-1.5 z-50 max-h-60 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-900 p-1 shadow-2xl animate-fade-in custom-scrollbar">
+            {options.map((opt) => {
+              const selected = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition cursor-pointer ${
+                    selected ? 'text-indigo-400 bg-zinc-800/40' : 'text-zinc-300 hover:bg-zinc-800/70'
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {selected && <Check size={13} className="text-indigo-400 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 /**
  * PaymentsList — filterable transaction history for the active account.
  */
-export default function PaymentsList({ account, onNewTransaction }) {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('All');
-  const [status, setStatus] = useState('All');
+export default function PaymentsList({ account, onNewTransaction, searchQuery, onSearchChange }) {
+  const [typeFilter, setTypeFilter] = useState('All'); // 'All' | 'Income' | 'Expense'
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [status, setStatus] = useState('All'); // 'All' | 'Completed' | 'Pending'
 
   const filtered = useMemo(() => {
     return account.transactions.filter((t) => {
-      const matchesQuery = t.description.toLowerCase().includes(query.toLowerCase());
-      const matchesCategory = category === 'All' || t.category === category;
+      const matchesQuery = t.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           t.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesType = typeFilter === 'All' || 
+                          (typeFilter === 'Income' && t.amount > 0) || 
+                          (typeFilter === 'Expense' && t.amount < 0);
+                          
+      const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
+
       const matchesStatus = status === 'All' || t.status === status;
-      return matchesQuery && matchesCategory && matchesStatus;
+      return matchesQuery && matchesType && matchesCategory && matchesStatus;
     });
-  }, [account, query, category, status]);
+  }, [account, searchQuery, typeFilter, categoryFilter, status]);
+
+  const typeOptions = [
+    { value: 'All', label: 'All Types' },
+    { value: 'Income', label: 'Income' },
+    { value: 'Expense', label: 'Expense' },
+  ];
+
+  const categoryOptions = [
+    { value: 'All', label: 'All Categories' },
+    ...CATEGORIES.filter((c) => c !== 'All').map((c) => ({ value: c, label: c })),
+  ];
+
+  const statusOptions = [
+    { value: 'All', label: 'All Status' },
+    { value: 'Completed', label: 'Completed' },
+    { value: 'Pending', label: 'Pending' },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-50">Payments</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-50 font-sans">Payments</h1>
           <p className="text-sm font-medium text-zinc-500">
             Transaction history for <span className="text-zinc-300">{account.name}</span>
             <span className="mx-2 text-zinc-700">·</span>
@@ -37,47 +124,59 @@ export default function PaymentsList({ account, onNewTransaction }) {
         </div>
         <button
           onClick={onNewTransaction}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.02] hover:bg-indigo-600 hover:shadow-indigo-500/40 active:scale-95"
+          className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.02] hover:bg-indigo-600 hover:shadow-indigo-500/40 active:scale-95 cursor-pointer"
         >
           <Plus size={16} />
           New Transaction
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/80 p-3">
-        <div className="relative min-w-[200px] flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search description..."
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-950/60 py-2 pl-9 pr-3 text-sm font-medium text-zinc-100 placeholder:text-zinc-600 outline-none transition focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20"
+      {/* Filters: Responsive 12-column grid layout */}
+      <div className="grid grid-cols-12 gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 items-end">
+        {/* Search Bar (Takes exactly 1/3 of row on desktop) */}
+        <div className="col-span-12 md:col-span-6 lg:col-span-4">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5 block">
+            Search
+          </span>
+          <div className="relative w-full">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search description or category..."
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 py-2.5 pl-9 pr-3 text-sm font-medium text-zinc-100 placeholder:text-zinc-650 outline-none transition focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+        </div>
+
+        {/* Type Selector Dropdown */}
+        <div className="col-span-12 md:col-span-6 lg:col-span-2">
+          <FilterSelect
+            label="Type"
+            value={typeFilter}
+            options={typeOptions}
+            onChange={setTypeFilter}
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal size={15} className="text-zinc-500" />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm font-medium text-zinc-200 outline-none transition focus:border-brand-500/60"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c} className="bg-zinc-900">
-                {c}
-              </option>
-            ))}
-          </select>
-          <select
+        {/* Categories Selector Dropdown */}
+        <div className="col-span-12 md:col-span-6 lg:col-span-3">
+          <FilterSelect
+            label="Category"
+            value={categoryFilter}
+            options={categoryOptions}
+            onChange={setCategoryFilter}
+          />
+        </div>
+
+        {/* Status Selector Dropdown */}
+        <div className="col-span-12 md:col-span-6 lg:col-span-3">
+          <FilterSelect
+            label="Status"
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm font-medium text-zinc-200 outline-none transition focus:border-brand-500/60"
-          >
-            <option value="All" className="bg-zinc-900">All Status</option>
-            <option value="Completed" className="bg-zinc-900">Completed</option>
-            <option value="Pending" className="bg-zinc-900">Pending</option>
-          </select>
+            options={statusOptions}
+            onChange={setStatus}
+          />
         </div>
       </div>
 

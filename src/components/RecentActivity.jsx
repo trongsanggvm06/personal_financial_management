@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { formatCurrency } from '../data/mockData';
 import StatusBadge from './StatusBadge';
@@ -16,16 +17,45 @@ const categoryDot = {
 };
 
 /**
- * RecentActivity — condensed dark table of the 5 most recent transactions.
+ * RecentActivity — condensed dark table of the 5 most recent transactions across all accounts.
  */
-export default function RecentActivity({ transactions }) {
-  const recent = transactions.slice(0, 5);
+export default function RecentActivity({ accounts, searchQuery }) {
+  const recent = useMemo(() => {
+    // 1. Gather all transactions across all accounts
+    const all = accounts.flatMap((acc) =>
+      acc.transactions.map((t) => ({
+        ...t,
+        accountName: acc.name,
+        accountAccent: acc.accent,
+      }))
+    );
+
+    // 2. Sort by date desc
+    all.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // 3. Filter by search query if present
+    if (!searchQuery) return all.slice(0, 5);
+    
+    const query = searchQuery.toLowerCase();
+    return all
+      .filter((t) =>
+        t.description.toLowerCase().includes(query) ||
+        t.category.toLowerCase().includes(query) ||
+        t.accountName.toLowerCase().includes(query)
+      )
+      .slice(0, 5);
+  }, [accounts, searchQuery]);
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-lg shadow-black/20">
       <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
-        <h3 className="text-base font-bold text-zinc-50">Recent Activity</h3>
-        <span className="text-xs font-medium text-zinc-500">Last 5 transactions</span>
+        <div>
+          <h3 className="text-base font-bold text-zinc-50">Recent Activity</h3>
+          <p className="text-xs font-medium text-zinc-500">Across all accounts</p>
+        </div>
+        <span className="text-xs font-semibold rounded-full bg-zinc-850 px-2 py-0.5 text-zinc-400">
+          Last 5 entries
+        </span>
       </div>
 
       <div className="divide-y divide-zinc-800/70">
@@ -47,12 +77,24 @@ export default function RecentActivity({ transactions }) {
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-zinc-100">
-                  {t.description}
-                </p>
-                <div className="mt-0.5 flex items-center gap-2 text-xs font-medium text-zinc-500">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <p className="truncate text-sm font-semibold text-zinc-100">
+                    {t.description}
+                  </p>
+                  <span className="inline-flex items-center rounded-md bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 ring-1 ring-inset ring-zinc-700/50">
+                    {t.accountName}
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-xs font-medium text-zinc-500">
                   <span className={`h-1.5 w-1.5 rounded-full ${categoryDot[t.category] || 'bg-zinc-500'}`} />
                   {t.category}
+                  <span className="text-zinc-700">·</span>
+                  <span>
+                    {new Date(t.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
                 </div>
               </div>
 
@@ -67,6 +109,11 @@ export default function RecentActivity({ transactions }) {
             </div>
           );
         })}
+        {recent.length === 0 && (
+          <div className="px-5 py-8 text-center text-sm font-medium text-zinc-500">
+            No recent activity found.
+          </div>
+        )}
       </div>
     </div>
   );
