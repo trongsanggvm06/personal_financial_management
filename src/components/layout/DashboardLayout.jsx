@@ -134,9 +134,7 @@ export default function DashboardLayout() {
             {/* Drawer Header */}
             <div className="flex h-16 items-center justify-between px-4 border-b border-zinc-900">
               <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500 shadow-lg shadow-indigo-500/30">
-                  <Sparkles size={16} className="text-white" />
-                </div>
+                <img src={viteLogo} alt="Lumen" className="h-8 w-8 shrink-0" />
                 <span className="text-sm font-bold tracking-tight text-zinc-50">Lumen</span>
               </div>
               <button
