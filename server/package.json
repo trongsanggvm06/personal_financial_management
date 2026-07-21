@@ -3,20 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Backend API for the personal finance app (Express + Prisma + SQLite + JWT).",
-  "main": "src/index.js",
+  "description": "Backend API for the personal finance app (Express + Prisma + PostgreSQL + JWT).",
+  "main": "dist/src/index.js",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/src/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev --name init",
-    "seed": "node prisma/seed.js",
-    "setup": "prisma db push && node prisma/seed.js",
-    "test": "node --test"
+    "seed": "tsx prisma/seed.ts",
+    "setup": "prisma db push && tsx prisma/seed.ts",
+    "test": "tsx --test test/*.test.ts"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -28,7 +30,15 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.0",
+    "@types/supertest": "^6.0.2",
     "prisma": "^5.22.0",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }
