@@ -1,120 +1,71 @@
 import { useMemo } from 'react';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
-import { formatCurrency } from '../../data/accounts';
-import StatusBadge from './StatusBadge';
-
-const categoryDot = {
-  Income: 'bg-emerald-500',
-  Groceries: 'bg-sky-500',
-  Transport: 'bg-amber-500',
-  Housing: 'bg-violet-500',
-  Entertainment: 'bg-pink-500',
-  Utilities: 'bg-teal-500',
-  Transfer: 'bg-zinc-400',
-  Investment: 'bg-indigo-500',
-  Travel: 'bg-cyan-500',
-  Fees: 'bg-rose-500',
-};
+import { formatCurrency, formatDate, dotFor } from '../../data/accounts';
 
 /**
- * RecentActivity — condensed dark table of the 5 most recent transactions across all accounts.
+ * RecentActivity — the most recent transactions for the given list.
+ * Expects transactions with { id, date, description, category, amount }.
  */
-export default function RecentActivity({ accounts, searchQuery }) {
+export default function RecentActivity({ transactions = [], limit = 6 }) {
   const recent = useMemo(() => {
-    // 1. Gather all transactions across all accounts
-    const all = accounts.flatMap((acc) =>
-      acc.transactions.map((t) => ({
-        ...t,
-        accountName: acc.name,
-        accountAccent: acc.accent,
-      }))
-    );
-
-    // 2. Sort by date desc
-    all.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // 3. Filter by search query if present
-    if (!searchQuery) return all.slice(0, 5);
-    
-    const query = searchQuery.toLowerCase();
-    return all
-      .filter((t) =>
-        t.description.toLowerCase().includes(query) ||
-        t.category.toLowerCase().includes(query) ||
-        t.accountName.toLowerCase().includes(query)
-      )
-      .slice(0, 5);
-  }, [accounts, searchQuery]);
+    return [...transactions]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, limit);
+  }, [transactions, limit]);
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-lg shadow-black/20">
       <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
         <div>
-          <h3 className="text-base font-bold text-zinc-50">Recent Activity</h3>
-          <p className="text-xs font-medium text-zinc-500">Across all accounts</p>
+          <h3 className="text-base font-bold text-zinc-50">Hoạt động gần đây</h3>
+          <p className="text-xs font-medium text-zinc-500">Giao dịch mới nhất</p>
         </div>
-        <span className="text-xs font-semibold rounded-full bg-zinc-850 px-2 py-0.5 text-zinc-400">
-          Last 5 entries
+        <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-semibold text-zinc-400">
+          {recent.length} mục
         </span>
       </div>
 
-      <div className="divide-y divide-zinc-800/70">
-        {recent.map((t, i) => {
-          const positive = t.amount > 0;
-          return (
-            <div
-              key={i}
-              className="flex items-center gap-4 px-5 py-3.5 transition-colors duration-200 hover:bg-zinc-800/40"
-            >
-              <span
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                  positive
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'bg-rose-500/10 text-rose-400'
-                }`}
+      {recent.length === 0 ? (
+        <div className="px-5 py-10 text-center text-sm text-zinc-600">Chưa có giao dịch nào.</div>
+      ) : (
+        <div className="divide-y divide-zinc-800/70">
+          {recent.map((t) => {
+            const positive = t.amount > 0;
+            return (
+              <div
+                key={t.id}
+                className="flex items-center gap-4 px-5 py-3.5 transition-colors duration-200 hover:bg-zinc-800/40"
               >
-                {positive ? <ArrowDownLeft size={15} /> : <ArrowUpRight size={15} />}
-              </span>
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                    positive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                  }`}
+                >
+                  {positive ? <ArrowDownLeft size={15} /> : <ArrowUpRight size={15} />}
+                </span>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <p className="truncate text-sm font-semibold text-zinc-100">
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-sm font-semibold text-zinc-100">
                     {t.description}
-                  </p>
-                  <span className="inline-flex items-center rounded-md bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 ring-1 ring-inset ring-zinc-700/50">
-                    {t.accountName}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+                    <span className={`h-1.5 w-1.5 rounded-full ${dotFor(t.category)}`} />
+                    {t.category} · {formatDate(t.date)}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center gap-2 text-xs font-medium text-zinc-500">
-                  <span className={`h-1.5 w-1.5 rounded-full ${categoryDot[t.category] || 'bg-zinc-500'}`} />
-                  {t.category}
-                  <span className="text-zinc-700">·</span>
-                  <span>
-                    {new Date(t.date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </div>
-              </div>
 
-              <StatusBadge status={t.status} />
-              <p
-                className={`w-24 shrink-0 text-right text-sm font-semibold tabular-nums ${
-                  positive ? 'text-emerald-400' : 'text-zinc-200'
-                }`}
-              >
-                {formatCurrency(t.amount, { signed: true })}
-              </p>
-            </div>
-          );
-        })}
-        {recent.length === 0 && (
-          <div className="px-5 py-8 text-center text-sm font-medium text-zinc-500">
-            No recent activity found.
-          </div>
-        )}
-      </div>
+                <span
+                  className={`shrink-0 text-sm font-bold tabular-nums ${
+                    positive ? 'text-emerald-400' : 'text-zinc-200'
+                  }`}
+                >
+                  {formatCurrency(t.amount, { signed: true })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
