@@ -45,62 +45,58 @@ function RequireAuth({ children }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <DashboardLayout />
-              </RequireAuth>
-            }
-          >
-            <Route
-              index
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <DashboardPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="giao-dich"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <TransactionsPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="tiet-kiem"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <SavingsPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="ngan-sach"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <BudgetsPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="bao-cao"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ReportsPage />
-                </Suspense>
-              }
-            />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/"
+        element={
+          <RequireAuth>
+            <DashboardLayout />
+          </RequireAuth>
+        }
+      >
+        <Route
+          index
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <DashboardPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="giao-dich"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <TransactionsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="tiet-kiem"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <SavingsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="ngan-sach"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <BudgetsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="bao-cao"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ReportsPage />
+            </Suspense>
+          }
+        />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
